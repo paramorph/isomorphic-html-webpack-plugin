@@ -1,0 +1,28 @@
+{
+  "name": "isomorphic-html-webpack-plugin",
+  "version": "0.1.0",
+  "description": "Static HTML generator plugin with support for webpack code splitting.",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/paramorph/isomorphic-html-webpack-plugin.git"
+  },
+  "keywords": [
+    "static",
+    "html",
+    "webpack",
+    "plugin",
+    "isomorphic",
+    "generator",
+    "code-splitting"
+  ],
+  "author": "Maciej Chałapuk <maciej@chalapuk.pl>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/paramorph/isomorphic-html-webpack-plugin/issues"
+  },
+  "homepage": "https://github.com/paramorph/isomorphic-html-webpack-plugin#readme"
+}
