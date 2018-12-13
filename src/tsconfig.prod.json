@@ -18,9 +18,9 @@
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
-    "outDir": "./lib/",
+    "outDir": "../lib/",
     "strictNullChecks": true,
-    "sourceMap": true,
+    "sourceMap": false,
     "target": "es5",
     "types": [
       "webpack"
@@ -30,10 +30,11 @@
     }
   },
   "include": [
-    "./src/@types/**/*.ts",
-    "./src/**/*.ts"
+    "./**/*.ts"
   ],
   "exclude": [
+    "./**/*.spec.ts",
+    "./harness.ts"
   ]
 }
 

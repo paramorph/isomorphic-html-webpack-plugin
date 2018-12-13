@@ -5,10 +5,9 @@
   "main": "index.js",
   "scripts": {
     "clean": "rm -rf lib #",
-    "compile-ts": "tsc",
-    "compile-coffee": "coffee -c -m -o lib src",
-    "compile": "npm run compile-ts && npm run compile-coffee",
-    "test": "mocha --use_strict lib/test/harness.js $(find lib -name \"*.spec.js\")",
+    "compile-ts": "cd src && tsc --project ./tsconfig.prod.json",
+    "compile": "npm run compile-ts",
+    "test": "cd src && mocha --use_strict -r ts-node/register -r ./harness.ts $(find . -name \"*.spec.ts\")",
     "copy-package.json": "mkdir -p lib/ && cp package.json lib/",
     "copy": "npm run copy-package.json",
     "build": "npm run compile && npm run copy && npm run test",
@@ -35,11 +34,15 @@
   },
   "homepage": "https://github.com/paramorph/isomorphic-html-webpack-plugin#readme",
   "devDependencies": {
+    "@types/mocha": "^5.2.5",
+    "@types/should": "^13.0.0",
     "@types/webpack": "^4.4.9",
-    "coffeescript": "^2.3.1",
     "mocha": "^5.2.0",
     "should": "^13.2.3",
-    "typescript": "^3.0.1",
-    "webpack": "^4.16.4"
+    "ts-node": "^7.0.1",
+    "typescript": "^3.0.1"
+  },
+  "dependencies": {
+    "webpack": "^4.27.1"
   }
 }
