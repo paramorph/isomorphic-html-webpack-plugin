@@ -23,14 +23,17 @@
     "sourceMap": false,
     "target": "es5",
     "types": [
-      "webpack"
+      "offensive",
+      "webpack",
+      "webpack-sources"
     ],
     "baseUrl": ".",
     "paths": {
     }
   },
   "include": [
-    "./**/*.ts"
+    "./**/*.ts",
+    "../node_modules/offensive/**/*.ts"
   ],
   "exclude": [
     "./**/*.spec.ts",

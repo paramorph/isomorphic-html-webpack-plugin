@@ -23,7 +23,9 @@
     "sourceMap": true,
     "target": "es5",
     "types": [
+      "offensive",
       "webpack",
+      "webpack-sources",
       "mocha",
       "should"
     ],
@@ -32,7 +34,8 @@
     }
   },
   "include": [
-    "./**/*.ts"
+    "./**/*.ts",
+    "../node_modules/offensive/**/*.ts"
   ],
   "exclude": [
   ]
