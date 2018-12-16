@@ -24,6 +24,7 @@
     "target": "es5",
     "types": [
       "offensive",
+      "node",
       "webpack",
       "webpack-sources"
     ],

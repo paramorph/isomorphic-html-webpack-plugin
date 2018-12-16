@@ -9,10 +9,16 @@ import 'offensive/assertions/Undefined/register';
 import 'offensive/assertions/anObject/register';
 import check from 'offensive';
 
+import evaluate from './evaluate';
+
 /**
- * A webpack plugin which uses an output one of entry point to generate
- * static HTML files. After generating the files, the plugin exports them
- * as webpack assets.
+ * @class IsomorphicHtmlWebpackPlugin
+ *
+ * A webpack plugin which expects one of entry points to export a function
+ * which implements GeneratorFunction interface. It evaluates the entry point
+ * using configured global variables and uses calls the generator function
+ * with configured locals and webpack compilation stats object as arguments.
+ * After generating the files, the plugin exports them as webpack assets.
  *
  * The plugin works very similar to static-site-generator-webpack-plugin
  * but it's much simpler in its interface and also supports webpack's code-
@@ -55,9 +61,6 @@ const PLUGIN_NAME = 'isomorphic-html-webpack-plugin';
 type Compilation = compilation.Compilation;
 type Asset = compilation.Asset;
 
-/**
- * 
- */
 export class IsomorphicHtmlWebpackPlugin implements Plugin {
   readonly options : Options;
 
@@ -145,9 +148,5 @@ function pathToAssetName(outputPath : string) {
     outputFileName = path.join(outputFileName, 'index.html');
   }
   return outputFileName;
-}
-
-function evaluate(source : string, entry : string, globals : any) : any {
-  return {};
 }
 
