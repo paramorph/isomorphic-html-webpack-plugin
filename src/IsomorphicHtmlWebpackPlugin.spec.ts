@@ -29,28 +29,31 @@ describe('IsomorphicHtmlWebpackPlugin', () => {
     generatedHtml = path.join(output, 'index.html');
 
     fs.writeFileSync(mainPath, `
-      exports = function(stats, locals) {
-        var c = locals.c;
+exports.default = function(stats, locals) {
+  var c = locals.c;
 
-        import('./a').then(function(a) {
-          import('./b').then(function(b) {
-            return { 'index.html': (a + b + c + d) };
-          });
-        });
-      }
+  return import('./a').then(function(a) {
+    return import('./b').then(function(b) {
+      return { 'index.html': (a + b + c + d) };
+    });
+  });
+}
     `);
     fs.writeFileSync(aPath, `exports = 'a';`);
     fs.writeFileSync(bPath, `exports = 'b';`);
 
     bundler = webpack({
+      mode: "development",
       entry: {
         test: [
           mainPath,
         ],
       },
+      target: 'web',
       output: {
         path: output,
         filename: '[chunkhash].js',
+        libraryTarget: 'commonjs2',
       },
       resolve: {
         extensions: [

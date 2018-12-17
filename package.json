@@ -34,6 +34,7 @@
   },
   "homepage": "https://github.com/paramorph/isomorphic-html-webpack-plugin#readme",
   "devDependencies": {
+    "@types/jsdom": "^12.2.0",
     "@types/mocha": "^5.2.5",
     "@types/node": "^10.12.15",
     "@types/should": "^13.0.0",
@@ -45,6 +46,7 @@
     "typescript": "^3.0.1"
   },
   "dependencies": {
+    "jsdom": "^13.1.0",
     "offensive": "^2.0.10",
     "webpack": "^4.27.1"
   }

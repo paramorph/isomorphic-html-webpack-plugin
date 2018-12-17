@@ -2,11 +2,13 @@
 import { Plugin, Compiler, Stats, compilation } from 'webpack';
 import { Source, RawSource } from 'webpack-sources';
 import * as path from 'path';
+import { JSDOM } from 'jsdom';
 
 import 'offensive/assertions/fieldThat/register';
 import 'offensive/assertions/aString/register';
 import 'offensive/assertions/Undefined/register';
 import 'offensive/assertions/anObject/register';
+import 'offensive/assertions/aFunction/register';
 import check from 'offensive';
 
 import evaluate from './evaluate';
@@ -87,22 +89,19 @@ export class IsomorphicHtmlWebpackPlugin implements Plugin {
       return;
     }
 
+    addWindowToGlobals(globals);
+
     try {
       const assets = findAssets(entry, compilation, webpackStats);
 
       const source = assets.map(asset => asset.source()).join('\n');
-      const generatorModule = evaluate(source, entry, globals);
+      const generatorExports = evaluate(source, entry, globals);
 
-      if (!generatorModule.hasOwnProperty('default')) {
-        throw new Error(`entry point \'${entry}\' doesn't have a default export`);
-      }
-      if (typeof generatorModule !== 'function') {
-        throw new Error(
-          `default export from entry point '${entry}' must be a function; got ${typeof generatorModule}`
-        );
-      }
-      const generate = generatorModule.default as GeneratorFunction;
+      check(generatorExports.default, `'${entry}' entry point's exports.default`).is.aFunction();
+      const generate = generatorExports.default as GeneratorFunction;
+
       const generatedHtml = await generate(webpackStats, locals);
+      check(generatedHtml, 'generatedHtml').is.anObject();
 
       Object.keys(generatedHtml)
         .forEach(fileName => exportAsset(compilation, fileName, generatedHtml[fileName]));
@@ -152,5 +151,33 @@ function pathToAssetName(outputPath : string) {
     outputFileName = path.join(outputFileName, 'index.html');
   }
   return outputFileName;
+}
+
+function addWindowToGlobals(globals : any) {
+  if (!globals.hasOwnProperty('window')) {
+    const fakeWindow = new JSDOM('<script></script>').window;
+
+    Object.defineProperty(globals, 'window', {
+      get: () => fakeWindow,
+      set: (value : any) => { throw new Error('window is readonly'); },
+      enumerable: true,
+    });
+  }
+  if (!globals.hasOwnProperty('document')) {
+    Object.defineProperty(globals, 'document', {
+      get: () => globals.window.document,
+      set: (value : any) => { throw new Error('document is readonly'); },
+      enumerable: true,
+    });
+  }
+  if (!globals.hasOwnProperty('setTimeout')) {
+    Object.defineProperty(globals, 'setTimeout', {
+      get: () => global.setTimeout,
+      set: (value : any) => { throw new Error('setTimeout is readonly'); },
+      enumerable: true,
+    });
+  }
+
+  console.log(globals);
 }
 
