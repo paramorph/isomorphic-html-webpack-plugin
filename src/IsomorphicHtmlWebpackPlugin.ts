@@ -82,6 +82,10 @@ export class IsomorphicHtmlWebpackPlugin implements Plugin {
     const { entry, locals = {}, globals = {} } = this.options;
 
     const webpackStats = compilation.getStats();
+    if (webpackStats.hasErrors()) {
+      console.log('IsomorphicHtmlWebpackPlugin: Bailing out due to previous errors...');
+      return;
+    }
 
     try {
       const assets = findAssets(entry, compilation, webpackStats);
