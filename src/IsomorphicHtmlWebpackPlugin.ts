@@ -2,7 +2,7 @@
 import { Plugin, Compiler, Stats, compilation } from 'webpack';
 import { Source, RawSource } from 'webpack-sources';
 import * as path from 'path';
-import { JSDOM } from 'jsdom';
+import * as jsdom from 'jsdom';
 
 import 'offensive/assertions/fieldThat/register';
 import 'offensive/assertions/aString/register';
@@ -60,8 +60,10 @@ export interface Options {
 }
 
 const PLUGIN_NAME = 'isomorphic-html-webpack-plugin';
+
 type Compilation = compilation.Compilation;
 type Asset = compilation.Asset;
+type FetchResource = (url : string, oprions : jsdom.FetchOptions) => Promise<Buffer>;
 
 export class IsomorphicHtmlWebpackPlugin implements Plugin {
   readonly options : Options;
@@ -85,16 +87,15 @@ export class IsomorphicHtmlWebpackPlugin implements Plugin {
 
     const webpackStats = compilation.getStats();
     if (webpackStats.hasErrors()) {
-      console.log('IsomorphicHtmlWebpackPlugin: Bailing out due to previous errors...');
+      console.log(`${PLUGIN_NAME}: Bailing out due to previous errors...`);
       return;
     }
-
-    addWindowToGlobals(globals);
+    prepareFakeBrowser(globals, fetchResource.bind(null, compilation));
 
     try {
-      const assets = findAssets(entry, compilation, webpackStats);
+      const initAsset = findInitialAsset(entry, compilation, webpackStats);
 
-      const source = assets.map(asset => asset.source()).join('\n');
+      const source = initAsset.source();
       const generatorExports = evaluate(source, entry, globals);
 
       check(generatorExports.default, `'${entry}' entry point's exports.default`).is.aFunction();
@@ -114,13 +115,7 @@ export class IsomorphicHtmlWebpackPlugin implements Plugin {
 
 export default IsomorphicHtmlWebpackPlugin;
 
-function findAssets(entry : string, compilation : Compilation, stats : Stats) : Source[] {
-  const asset = compilation.assets[entry];
-
-  if (asset) {
-    return [ asset ];
-  }
-
+function findInitialAsset(entry : string, compilation : Compilation, stats : Stats) : Source {
   const json = stats.toJson()
   const chunkNames = json.assetsByChunkName[entry];
 
@@ -129,9 +124,9 @@ function findAssets(entry : string, compilation : Compilation, stats : Stats) : 
   }
   // Webpack outputs an array for each chunk when using sourcemaps
   if (chunkNames instanceof Array) {
-    return chunkNames.map(chunk => compilation.assets[chunk]);
+    return chunkNames.filter(name => name.endsWith('.js'))[0];
   }
-  return [ compilation.assets[chunkNames] ];
+  return compilation.assets[chunkNames];
 }
 
 function exportAsset(compilation : Compilation, fileName : string, source : string) {
@@ -153,31 +148,47 @@ function pathToAssetName(outputPath : string) {
   return outputFileName;
 }
 
-function addWindowToGlobals(globals : any) {
+function prepareFakeBrowser(globals : any, fetch : FetchResource) {
   if (!globals.hasOwnProperty('window')) {
-    const fakeWindow = new JSDOM('<script></script>').window;
+    const resources = new jsdom.ResourceLoader();
+    resources.fetch = fetch;
 
+    const dom = new jsdom.JSDOM('<script></script>', {
+      runScripts: 'dangerously',
+      resources,
+      pretendToBeVisual: true,
+    });
     Object.defineProperty(globals, 'window', {
-      get: () => fakeWindow,
+      get: () => dom.window,
       set: (value : any) => { throw new Error('window is readonly'); },
       enumerable: true,
     });
   }
-  if (!globals.hasOwnProperty('document')) {
-    Object.defineProperty(globals, 'document', {
-      get: () => globals.window.document,
-      set: (value : any) => { throw new Error('document is readonly'); },
-      enumerable: true,
-    });
-  }
-  if (!globals.hasOwnProperty('setTimeout')) {
-    Object.defineProperty(globals, 'setTimeout', {
-      get: () => global.setTimeout,
-      set: (value : any) => { throw new Error('setTimeout is readonly'); },
-      enumerable: true,
-    });
-  }
 
-  console.log(globals);
+  const windowPropsForwardedToGlobalScope = [
+    'document',
+    'setTimeout',
+    'clearTimeout',
+    'console',
+  ];
+
+  windowPropsForwardedToGlobalScope.forEach(key => {
+    if (!globals.hasOwnProperty(key)) {
+      Object.defineProperty(globals, key, {
+        get: () => globals.window[key],
+        set: (value : any) => { throw new Error(`${key} is readonly`); },
+        enumerable: true,
+      });
+    }
+  });
+}
+
+async function fetchResource(
+  compilation : Compilation,
+  url : string,
+  options : jsdom.FetchOptions,
+) : Promise<Buffer> {
+  const asset = compilation.assets[url];
+  return Buffer.from(asset.source());
 }
 

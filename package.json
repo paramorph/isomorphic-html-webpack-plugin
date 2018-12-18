@@ -7,7 +7,7 @@
     "clean": "rm -rf lib #",
     "compile-ts": "tsc --project src/tsconfig.prod.json",
     "compile": "npm run compile-ts",
-    "test": "TS_NODE_PROJECT=src/tsconfig.test.json TS_NODE_FILES=1 mocha --timeout 10000 --use_strict -r ts-node/register src/harness.ts $(find src -name \"*.spec.ts\")",
+    "test": "TS_NODE_PROJECT=src/tsconfig.test.json TS_NODE_FILES=1 mocha --timeout 90000 --use_strict -r ts-node/register src/harness.ts $(find src -name \"*.spec.ts\")",
     "copy-package.json": "mkdir -p lib/ && cp package.json lib/",
     "copy": "npm run copy-package.json",
     "build": "npm run compile && npm run copy && npm run test",

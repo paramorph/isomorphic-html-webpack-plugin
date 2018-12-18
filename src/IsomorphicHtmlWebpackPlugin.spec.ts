@@ -30,17 +30,15 @@ describe('IsomorphicHtmlWebpackPlugin', () => {
 
     fs.writeFileSync(mainPath, `
 exports.default = function(stats, locals) {
-  var c = locals.c;
-
   return import('./a').then(function(a) {
     return import('./b').then(function(b) {
-      return { 'index.html': (a + b + c + d) };
+      return { 'index.html': (a.default.a + b.default.b + locals.c + global.d) };
     });
   });
 }
     `);
-    fs.writeFileSync(aPath, `exports = 'a';`);
-    fs.writeFileSync(bPath, `exports = 'b';`);
+    fs.writeFileSync(aPath, `exports.a = 'a';`);
+    fs.writeFileSync(bPath, `exports.b = 'b';`);
 
     bundler = webpack({
       mode: "development",
