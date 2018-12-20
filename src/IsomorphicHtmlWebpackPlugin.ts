@@ -39,7 +39,7 @@ export type StaticHtmlMap = { [filename : string] : string };
  * which will be used to generate static HTML.
  */
 export interface GeneratorFunction {
-  (webpackStats : Stats, locals : any) : Promise<StaticHtmlMap>;
+  (locals : any, webpackStats : Stats) : Promise<StaticHtmlMap>;
 }
 
 export interface Options {
@@ -101,7 +101,7 @@ export class IsomorphicHtmlWebpackPlugin implements Plugin {
       check(generatorExports.default, `'${entry}' entry point's exports.default`).is.aFunction();
       const generate = generatorExports.default as GeneratorFunction;
 
-      const generatedHtml = await generate(webpackStats, locals);
+      const generatedHtml = await generate(locals, webpackStats);
       check(generatedHtml, 'generatedHtml').is.anObject();
 
       Object.keys(generatedHtml)

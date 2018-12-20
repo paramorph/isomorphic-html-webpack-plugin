@@ -29,7 +29,7 @@ describe('IsomorphicHtmlWebpackPlugin', () => {
     generatedHtml = path.join(output, 'index.html');
 
     fs.writeFileSync(mainPath, `
-exports.default = function(stats, locals) {
+exports.default = function(locals, stats) {
   return import('./a').then(function(a) {
     return import('./b').then(function(b) {
       return { 'index.html': (a.default.a + b.default.b + locals.c + global.d) };
