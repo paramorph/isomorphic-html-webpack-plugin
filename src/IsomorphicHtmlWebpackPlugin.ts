@@ -124,7 +124,8 @@ function findInitialAsset(entry : string, compilation : Compilation, stats : Sta
   }
   // Webpack outputs an array for each chunk when using sourcemaps
   if (chunkNames instanceof Array) {
-    return chunkNames.filter(name => name.endsWith('.js'))[0];
+    const name = chunkNames.filter(name => name.endsWith('.js'))[0];
+    return compilation.assets[name];
   }
   return compilation.assets[chunkNames];
 }
@@ -195,7 +196,15 @@ async function fetchResource(
   url : string,
   options : jsdom.FetchOptions,
 ) : Promise<Buffer> {
-  const asset = compilation.assets[url];
+  const { output } = compilation.compiler.options;
+  const asset = compilation.assets[removePublicPath(url, output)];
   return Buffer.from(asset.source());
+}
+
+function removePublicPath(url : string, output ?: { publicPath ?: string }) {
+  if (!output || !output.publicPath) {
+    return url;
+  }
+  return url.substring(output.publicPath.length);
 }
 
