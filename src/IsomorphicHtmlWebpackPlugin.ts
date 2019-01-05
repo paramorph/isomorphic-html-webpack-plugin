@@ -164,6 +164,13 @@ function prepareFakeBrowser(globals : any, fetch : FetchResource) {
       enumerable: true,
     });
   }
+  if (!globals.hasOwnProperty('self')) {
+    Object.defineProperty(globals, 'self', {
+      get: () => globals.window,
+      set: (value : any) => { throw new Error('self is readonly'); },
+      enumerable: true,
+    });
+  }
 
   const windowPropsForwardedToGlobalScope = [
     'document',
