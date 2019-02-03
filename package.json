@@ -1,6 +1,6 @@
 {
   "name": "isomorphic-html-webpack-plugin",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "description": "Static HTML generator plugin with support for webpack code splitting.",
   "main": "IsomorphicHtmlWebpackPlugin.js",
   "scripts": {
