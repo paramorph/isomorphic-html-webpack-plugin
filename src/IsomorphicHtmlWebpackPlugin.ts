@@ -178,6 +178,8 @@ function prepareFakeBrowser(globals : any, fetch : FetchResource) {
     'setTimeout',
     'clearTimeout',
     'console',
+    'navigator',
+    'location',
   ];
 
   windowPropsForwardedToGlobalScope.forEach(key => {
