@@ -110,7 +110,11 @@ export class IsomorphicHtmlWebpackPlugin implements Plugin {
     } catch (err) {
       compilation.errors.push(err.stack);
     } finally {
-      globals.window.close();
+      try {
+        globals.window.close();
+      } catch (e) {
+        // ignore errors during cleanup
+      }
     }
   }
 }
