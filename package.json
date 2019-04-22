@@ -1,6 +1,6 @@
 {
   "name": "isomorphic-html-webpack-plugin",
-  "version": "0.5.1",
+  "version": "0.6.1",
   "description": "Static HTML generator plugin with support for webpack code splitting.",
   "main": "IsomorphicHtmlWebpackPlugin.js",
   "scripts": {
@@ -12,7 +12,7 @@
     "copy": "npm run copy-package.json",
     "build": "npm run compile && npm run copy && npm run test",
     "clean-build": "npm run clean && npm run build",
-    "deploy": "npm run clean-build && npm publish lib"
+    "deploy": "npm install && npm run clean-build && npm publish lib"
   },
   "repository": {
     "type": "git",
